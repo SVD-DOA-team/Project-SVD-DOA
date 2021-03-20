@@ -15,9 +15,8 @@ function [signalDim,RMatrix]=RMatGen(dim)
     % 构造R矩阵
     % 构造信号部分，一个半正定的Hermitian矩阵
     RMatrix=rand(signalDim)+1i*rand(signalDim);
-    RMatrix=RMatrix'*RMatrix;
     % 拓展R矩阵的维度，为噪声分量留出空间
     RMatrix(dim,dim)=0;
     % 加入噪声扰动，同时使得R正定
-    RMatrix=+noiseCoefficent*eye(dim);
+    RMatrix=RMatrix'*RMatrix+noiseCoefficent*eye(dim);
 end
