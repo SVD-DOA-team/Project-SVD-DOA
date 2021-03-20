@@ -9,6 +9,9 @@ randomDim=fix(200*rand(1,testCount))+2;
 
 % 接收矩阵初始化
 sizeInformation = [];
+errorInformation = [];
+errorInformationUnUnH = [];
+errorInformationUsUsH = [];
 
 for index=1:testCount
     % 生成随机维度的 R 矩阵
@@ -35,9 +38,9 @@ for index=1:testCount
         sizeInformation = [sizeInformation;randomDim(index) size(answerOf256a)];
     end
     % 将 2.5.6a 的答案与同阶的单位矩阵作差，求其误差；
-    % 然后与误差容限比较，如果超出误差容限，errorInformation 矩阵就会获得元素从而非空。
-    % 若 errorInformation 为空矩阵，则可以验证 2.5.6a 成立。
-    errorInformation = find((answerOf256a-eye(randomDim(index)))>tolerableErr);
+    % 然后与误差容限比较，如果超出误差容限，find() 函数就会返回非空矩阵。
+    % 因此，只要 errorInformation 矩阵在测试完成后仍为空矩阵，就可以验证 2.5.6a 成立。
+    errorInformation = [errorInformation find((answerOf256a-eye(randomDim(index)))>tolerableErr)];
     
     % 验证 2.5.6b
     UsUsH = Usignal*Usignal';
@@ -46,8 +49,14 @@ for index=1:testCount
     [~,sortedUnUnHIndex] = sort(diag(UnUnH),'descend');
     sortedUnUnH = UnUnH(sortedUnUnHIndex,sortedUnUnHIndex);
     % 将 Us*Us' 与 Un*Un' 取其非零部分，将取出的非零部分与和它同秩的单位矩阵作差，求其误差；
-    % 然后与误差容限比较，如果超出误差容限，errorInformationUsUsH 和 errorInformationUnUnH 矩阵就会获得元素从而非空。
-    % 若 errorInformationUsUsH 和 errorInformationUnUnH 矩阵均为空矩阵，则可以验证 2.5.6b 成立。
-    errorInformationUsUsH = find((UsUsH(1:rank(UsUsH),1:rank(UsUsH))-eye(rank(UsUsH)))>tolerableErr);
-    errorInformationUnUnH = find((UnUnH(1:rank(UnUnH),1:rank(UnUnH))-eye(rank(UnUnH)))>tolerableErr);
+    % 然后与误差容限比较，如果超出误差容限，以下两条语句中的 find() 函数就会返回非空矩阵。
+    % 因此，只要以下两个矩阵在测试完成后仍为空矩阵，就可以验证 2.5.6b 成立。
+    errorInformationUsUsH = [errorInformationUsUsH find((UsUsH(1:rank(UsUsH),1:rank(UsUsH))-eye(rank(UsUsH)))>tolerableErr)];
+    errorInformationUnUnH = [errorInformationUnUnH find((UnUnH(1:rank(UnUnH),1:rank(UnUnH))-eye(rank(UnUnH)))>tolerableErr)];
+end
+if(isempty(errorInformation))
+    disp('等式 2.5.6a 成立。');
+end
+if(isempty(errorInformationUsUsH) && isempty(errorInformationUnUnH))
+    disp('等式 2.5.6b 成立。');
 end
