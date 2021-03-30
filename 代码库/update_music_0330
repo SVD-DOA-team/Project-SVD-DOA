@@ -52,3 +52,6 @@ plot(theta,10*log10(abs(P/max(P))));grid;
 axis([-90,90,-20,0]);
 xlabel("\theta/degree");ylabel("P(\theta)/dB");
 title("P(\theta)");
+
+%增大M会提高峰值与预测精度，增大信噪比会减小主瓣宽度，提高预测精度；但都未进行定量画图分析；
+%更改了A0，s，a的生成方式，提高了程序运行效率
