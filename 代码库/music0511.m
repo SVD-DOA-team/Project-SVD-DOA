@@ -30,10 +30,17 @@ theta0=pi/18.*(1:K);
 
 maxWEqualsToIError = [];
 maxWhenWLSIsUsedError = [];
-for SNR=[2:2:8 10:10:60]
+
+% 用于分析两种估计方法平均误差的统计性质
+maxavgErrorWequI = [];
+maxavgErrorWLSIsUsed = [];
+minavgErrorWequI = [];
+minavgErrorWLSIsUsed = [];
+
+for SNR=[2:2:8 10:10:30 30:40 40:10:60]
     errorWequI100loops = [];
     errorWLS100loops = [];
-    for loopTimes = 1:1000
+    for loopTimes = 1:500
         % 噪声功率为Pn,单位dB
         Pn=Ps-SNR;
 
@@ -82,7 +89,7 @@ for SNR=[2:2:8 10:10:60]
         errorWequI100loops = [errorWequI100loops;errorWhenWEqualsToI];
 
         errorWhenWLSIsUsed=[];
-        Iter_num=50;
+        Iter_num=10;
         % 给W赋迭代初值
         W=eye((M-K)*K);
         for i=1:Iter_num
@@ -99,12 +106,36 @@ for SNR=[2:2:8 10:10:60]
         errorWLS100loops = [errorWLS100loops;errorWhenWLSIsUsed(Iter_num,:)];
     end
     index=1:K;
-    figure
     averageErrorWequaltoI = mean(errorWequI100loops,1);
     averageErrorWLSIsUsed = mean(errorWLS100loops,1);
-    plot(index,averageErrorWequaltoI,'b',index,averageErrorWLSIsUsed,'r')
-    title(['当SNR为',num2str(SNR),'时的误差折线图']);
-    xlabel(['迭代次数N=',num2str(loopTimes)])
-    ylabel('误差大小')
-    legend('W取I时的误差','WLS迭代求W的误差')
+%     figure
+%     plot(index,averageErrorWequaltoI,'b',index,averageErrorWLSIsUsed,'r')
+%     title(['当SNR为',num2str(SNR),'时的误差折线图']);
+%     xlabel(['迭代次数N=',num2str(loopTimes)])
+%     ylabel('误差大小')
+%     legend('W取I时的误差','WLS迭代求W的误差')
+    maxavgErrorWequI = [maxavgErrorWequI max(averageErrorWequaltoI)];
+    minavgErrorWequI = [minavgErrorWequI min(averageErrorWequaltoI)];
+    
+    maxavgErrorWLSIsUsed = [maxavgErrorWLSIsUsed max(averageErrorWLSIsUsed)];
+    minavgErrorWLSIsUsed = [minavgErrorWLSIsUsed min(averageErrorWLSIsUsed)];
 end
+SNR=[2:2:8 10:10:30 30:40 40:10:60];
+figure
+plot(SNR,maxavgErrorWequI,'m',SNR,maxavgErrorWLSIsUsed,'r',SNR,minavgErrorWequI,'b',SNR,minavgErrorWLSIsUsed,'k')
+title('不同SNR条件下两种DOA估计方法的平均误差')
+xlabel('SNR')
+ylabel('误差大小')
+legend('W取I时的最大误差','WLS迭代求W的最大误差','W取I时的最小误差','WLS迭代求W的最小误差')
+figure
+plot(SNR,maxavgErrorWequI,'m',SNR,maxavgErrorWLSIsUsed,'r')
+title('不同SNR条件下两种DOA估计方法的最大平均误差')
+xlabel('SNR')
+ylabel('误差大小')
+legend('W取I时的最大误差','WLS迭代求W的最大误差')
+figure
+plot(SNR,minavgErrorWequI,'b',SNR,minavgErrorWLSIsUsed,'k')
+title('不同SNR条件下两种DOA估计方法的最小平均误差')
+xlabel('SNR')
+ylabel('误差大小')
+legend('W取I时的最小误差','WLS迭代求W的最小误差')
